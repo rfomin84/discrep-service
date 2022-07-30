@@ -1,8 +1,10 @@
 package redis
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-redis/redis/v9"
+	"log"
 )
 
 type Store struct {
@@ -15,6 +17,12 @@ func New(host, port, password string, DB int) *Store {
 		Password: password,
 		DB:       DB,
 	})
+
+	_, err := client.Ping(context.Background()).Result()
+
+	if err != nil {
+		log.Fatal("no connect with redis")
+	}
 
 	return &Store{
 		Client: client,

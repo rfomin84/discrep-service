@@ -1,9 +1,41 @@
 {
-  "posts": [
-    { "id": 1, "title": "json-server", "author": "typicode" }
+  "feeds": [
+    {
+      "id": 219,
+      "formats": [
+        "push"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false
+    },
+    {
+      "id": 288,
+      "formats": [
+        "push"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false
+    },
+    {
+      "id": 379,
+      "formats": [
+        "native"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false
+    }
   ],
   "comments": [
-    { "id": 1, "body": "some comment", "postId": 1 }
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
   ],
-  "profile": { "name": "typicode" }
+  "profile": {
+    "name": "typicode"
+  }
 }
