@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-co-op/gocron"
 	"github.com/rfomin84/discrep-service/config"
 	"github.com/rfomin84/discrep-service/internal/services/feeds/client"
 	"github.com/rfomin84/discrep-service/pkg/store/redis"
 	"io"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -51,4 +53,46 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println(val)
+
+	runCronJobs()
+}
+
+// 2
+func hello(name string) {
+	message := fmt.Sprintf("Hi, %v", name)
+	fmt.Println(message)
+}
+
+func helloWithSleep(name string) {
+	message := fmt.Sprintf("Hi, %v", name)
+	fmt.Println(message)
+	time.Sleep(5 * time.Second)
+	fmt.Println("END")
+}
+
+func runCronJobs() {
+	s := gocron.NewScheduler(time.UTC)
+
+	// get and save feeds
+	s.Every(1).Seconds().SingletonMode().Do(func() {
+		helloWithSleep("John Doe")
+	})
+
+	// gather statistics from clickhouse
+	s.Every(2).Seconds().SingletonMode().Do(func() {
+		hello("Roman Fomin")
+	})
+
+	// gather statistics from rtb-api-provid
+	s.Every(2).Seconds().SingletonMode().Do(func() {
+		hello("Roman Fomin")
+	})
+
+	// calculate discrepancy
+	s.Every(2).Seconds().SingletonMode().Do(func() {
+		hello("Roman Fomin")
+	})
+
+	// starting cron
+	s.StartBlocking()
 }
