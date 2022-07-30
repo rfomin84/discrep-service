@@ -1,17 +1,17 @@
 version: "3"
 
 services:
-  detailed-feed-statistic-storage:
+  discrepancy-service:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deploy/Dockerfile
     ports:
       - "8009:8080"
+    depends_on:
+      - clickhouse
+      - redis
     volumes:
       - ./:/src
-    networks:
-      - default
-      - tc-advertising3_default
   clickhouse:
     image: clickhouse/clickhouse-server:22.2.2
     ports:
