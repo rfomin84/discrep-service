@@ -7,7 +7,9 @@
       ],
       "user_id": 120,
       "external_statistics": true,
-      "is_dsp": false
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
     },
     {
       "id": 288,
@@ -16,7 +18,9 @@
       ],
       "user_id": 120,
       "external_statistics": true,
-      "is_dsp": false
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
     },
     {
       "id": 379,
@@ -25,17 +29,9 @@
       ],
       "user_id": 120,
       "external_statistics": true,
-      "is_dsp": false
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
     }
-  ],
-  "comments": [
-    {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
-    }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  ]
 }

@@ -1,4 +1,4 @@
-package redis
+package redis_client
 
 import (
 	"context"
@@ -21,7 +21,7 @@ func New(host, port, password string, DB int) *Store {
 	_, err := client.Ping(context.Background()).Result()
 
 	if err != nil {
-		log.Fatal("no connect with redis")
+		log.Fatal("no connect with redis_client")
 	}
 
 	return &Store{

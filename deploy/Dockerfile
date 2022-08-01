@@ -2,7 +2,7 @@ FROM golang:1.17-stretch
 
 WORKDIR /src
 
-RUN go install -tags 'clickhouse' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.1 && \
+RUN go install -tags 'clickhouse_client' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.1 && \
     go install github.com/x-motemen/gore/cmd/gore@latest
 
 COPY .. .
