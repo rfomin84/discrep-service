@@ -1,0 +1,1 @@
+DROP TABLE detailed_feed_statistics;

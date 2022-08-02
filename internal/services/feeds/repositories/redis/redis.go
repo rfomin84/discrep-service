@@ -21,7 +21,7 @@ func New(cfg *viper.Viper) *Storage {
 		cfg.GetInt("REDIS_DB"),
 	)
 	return &Storage{
-		client: redisStore.Client,
+		client: redisStore,
 	}
 }
 

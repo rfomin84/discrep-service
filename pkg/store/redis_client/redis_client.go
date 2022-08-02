@@ -7,11 +7,7 @@ import (
 	"log"
 )
 
-type Store struct {
-	Client *redis.Client
-}
-
-func New(host, port, password string, DB int) *Store {
+func New(host, port, password string, DB int) *redis.Client {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", host, port),
 		Password: password,
@@ -24,7 +20,5 @@ func New(host, port, password string, DB int) *Store {
 		log.Fatal("no connect with redis_client")
 	}
 
-	return &Store{
-		Client: client,
-	}
+	return client
 }
