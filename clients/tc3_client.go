@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"net/http"
-	"time"
 )
 
 type Tc3Client struct {
@@ -29,9 +28,12 @@ func New(cfg *viper.Viper) *Tc3Client {
 }
 
 func (httpClient Tc3Client) GetFeeds() (*http.Response, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, httpClient.Host+"/feeds", nil)
+	//ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	//defer cancel()
+
+	ctx := context.Background()
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, httpClient.Host+"/api/internal/v1/feeds-discrep-list", nil)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package feeds
 
 import (
 	"context"
+	"fmt"
 	"github.com/rfomin84/discrep-service/clients"
 	feeds2 "github.com/rfomin84/discrep-service/internal/services/feeds/domain"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/repositories"
@@ -27,7 +28,7 @@ func (uc *UseCase) SaveFeeds() {
 	tc3Client := clients.New(uc.cfg)
 	feedsData, err := tc3Client.GetFeeds()
 	if err != nil {
-		log.Println("error get feeds from tc3")
+		log.Println("error get feeds from tc3", err.Error())
 		return
 	}
 	defer feedsData.Body.Close()
@@ -46,6 +47,7 @@ func (uc *UseCase) GetFeeds() []feeds2.Feed {
 	// получить дынные из хранилища
 	feedsAll, err := uc.repository.Get(context.Background(), "feeds")
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil
 	}
 	return feedsAll

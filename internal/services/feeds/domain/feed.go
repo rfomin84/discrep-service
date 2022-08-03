@@ -2,7 +2,7 @@ package feeds
 
 type Feed struct {
 	Id                 int      `json:"id"`
-	Formats            []string `json:"formats"`
+	Formats            []string `json:"placement_types"`
 	UserId             int      `json:"userId"`
 	ExternalStatistics bool     `json:"external_statistics"`
 	IsDsp              bool     `json:"is_dsp"`

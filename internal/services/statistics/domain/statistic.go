@@ -10,3 +10,6 @@ type DetailedFeedStatistic struct {
 	Cost        float64 `json:"cost"`
 	Sign        int8    `json:"-"`
 }
+
+type
+

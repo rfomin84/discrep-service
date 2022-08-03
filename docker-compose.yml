@@ -12,6 +12,9 @@ services:
       - redis
     volumes:
       - ./:/src
+    networks:
+      - default
+      - tc-advertising3_default
   clickhouse:
     image: clickhouse/clickhouse-server:22.2.2
     ports:
@@ -41,3 +44,7 @@ services:
     volumes:
       - ./data:/data
     restart: always
+networks:
+  default:
+  tc-advertising3_default:
+    external: true
