@@ -6,6 +6,7 @@ import (
 	"github.com/rfomin84/discrep-service/config"
 	"github.com/rfomin84/discrep-service/internal/services/feeds/repositories/redis"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
+	statisitics "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage/redis"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/useCase"
 	"log"
 	"time"
@@ -14,8 +15,9 @@ import (
 func main() {
 	cfg := config.GetConfig()
 	repo := redis.New(cfg)
+	tempStorageRepo := statisitics.NewTemporaryStorage(cfg)
 	feedsUseCase := feeds.New(cfg, repo)
-	useCaseStatistics := statistics.NewUseCaseStatistics(cfg, feedsUseCase)
+	useCaseStatistics := statistics.NewUseCaseStatistics(cfg, feedsUseCase, tempStorageRepo)
 	useCaseStatistics.GatherStatistics()
 	//runCronJobs()
 }

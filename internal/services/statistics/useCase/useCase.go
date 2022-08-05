@@ -1,12 +1,14 @@
 package statistics
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/rfomin84/discrep-service/clients"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
+	statistics2 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage"
 	"github.com/spf13/viper"
 	"io"
 	"log"
@@ -15,14 +17,16 @@ import (
 )
 
 type UseCase struct {
-	cfg          *viper.Viper
-	feedsUseCase *feeds.UseCase
+	cfg                        *viper.Viper
+	feedsUseCase               *feeds.UseCase
+	temporaryStorageRepository statistics2.TemporaryStorageInterface
 }
 
-func NewUseCaseStatistics(cfg *viper.Viper, feedsUseCase *feeds.UseCase) *UseCase {
+func NewUseCaseStatistics(cfg *viper.Viper, feedsUseCase *feeds.UseCase, repo statistics2.TemporaryStorageInterface) *UseCase {
 	return &UseCase{
-		cfg:          cfg,
-		feedsUseCase: feedsUseCase,
+		cfg:                        cfg,
+		feedsUseCase:               feedsUseCase,
+		temporaryStorageRepository: repo,
 	}
 }
 
@@ -61,6 +65,12 @@ func (uc *UseCase) GatherStatistics() {
 	wg.Wait()
 
 	fmt.Println(len(detailStatistics))
+
+	err := uc.temporaryStorageRepository.SaveStatistics(context.Background(), detailStatistics)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 }
 
 func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statistics.DetailedFeedStatistic, startDate, endDate time.Time, billingType, timeframe string, feedIds []int) {
