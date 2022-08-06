@@ -8,6 +8,7 @@ import (
 	"github.com/rfomin84/discrep-service/clients"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
+	statistics3 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/long_term_storage"
 	statistics2 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage"
 	"github.com/spf13/viper"
 	"io"
@@ -20,17 +21,47 @@ type UseCase struct {
 	cfg                        *viper.Viper
 	feedsUseCase               *feeds.UseCase
 	temporaryStorageRepository statistics2.TemporaryStorageInterface
+	longTermStorageRepository  statistics3.LongTermStorageInterface
 }
 
-func NewUseCaseStatistics(cfg *viper.Viper, feedsUseCase *feeds.UseCase, repo statistics2.TemporaryStorageInterface) *UseCase {
+func NewUseCaseStatistics(cfg *viper.Viper, feedsUseCase *feeds.UseCase, temporaryRepo statistics2.TemporaryStorageInterface, longTermRepo statistics3.LongTermStorageInterface) *UseCase {
 	return &UseCase{
 		cfg:                        cfg,
 		feedsUseCase:               feedsUseCase,
-		temporaryStorageRepository: repo,
+		temporaryStorageRepository: temporaryRepo,
+		longTermStorageRepository:  longTermRepo,
 	}
 }
 
 func (uc *UseCase) GatherStatistics() {
+
+	startDate := carbon.Yesterday().StartOfDay().Carbon2Time()
+	endDate := carbon.Now().EndOfDay().Carbon2Time()
+
+	feedsGroupByFormats := uc.getFeeds()
+
+	detailStatistics := uc.getStatsFromStatsProvider(feedsGroupByFormats, startDate, endDate)
+
+	err := uc.temporaryStorageRepository.SaveStatistics(context.Background(), detailStatistics)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func (uc *UseCase) FinalizeGatherStatistics() {
+	startDate := carbon.Yesterday().StartOfDay().Carbon2Time()
+	endDate := carbon.Now().EndOfDay().Carbon2Time()
+
+	feedsGroupByFormats := uc.getFeeds()
+
+	detailStatistics := uc.getStatsFromStatsProvider(feedsGroupByFormats, startDate, endDate)
+
+	// save clickhouse
+	fmt.Println(len(detailStatistics))
+	uc.longTermStorageRepository.SaveStatistics(detailStatistics)
+}
+
+func (uc *UseCase) getFeeds() map[string][]int {
 	feedsGroupByFormats := make(map[string][]int)
 
 	getFeeds := uc.feedsUseCase.GetFeeds()
@@ -50,12 +81,12 @@ func (uc *UseCase) GatherStatistics() {
 		}
 	}
 
-	// идем за статистикой в stats-provider
+	return feedsGroupByFormats
+}
+
+func (uc *UseCase) getStatsFromStatsProvider(feedsGroupByFormats map[string][]int, startDate, endDate time.Time) []statistics.DetailedFeedStatistic {
 	detailStatistics := make([]statistics.DetailedFeedStatistic, 0)
 	var wg sync.WaitGroup
-
-	startDate := carbon.Yesterday().StartOfDay().Carbon2Time()
-	endDate := carbon.Now().EndOfDay().Carbon2Time()
 
 	for billingType, feedIds := range feedsGroupByFormats {
 		wg.Add(1)
@@ -64,13 +95,7 @@ func (uc *UseCase) GatherStatistics() {
 
 	wg.Wait()
 
-	fmt.Println(len(detailStatistics))
-
-	err := uc.temporaryStorageRepository.SaveStatistics(context.Background(), detailStatistics)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
+	return detailStatistics
 }
 
 func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statistics.DetailedFeedStatistic, startDate, endDate time.Time, billingType, timeframe string, feedIds []int) {
@@ -99,6 +124,7 @@ func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statis
 			Clicks:      stat.Clicks,
 			Impressions: stat.Impressions,
 			Cost:        stat.Cost,
+			Sign:        int8(1),
 		}
 		*stats = append(*stats, detailStats)
 	}
