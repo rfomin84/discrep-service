@@ -61,6 +61,19 @@ func (uc *UseCase) FinalizeGatherStatistics() {
 	uc.longTermStorageRepository.SaveStatistics(detailStatistics)
 }
 
+func (uc *UseCase) GetStatistics(startDate, endDate string, feedIds []int) []statistics.DetailedFeedStatistic {
+	start, _ := time.Parse("2006-01-02 15:04:05", startDate)
+	end, _ := time.Parse("2006-01-02 15:04:05", endDate)
+
+	feedListId := make([]uint16, 0)
+
+	for _, feedId := range feedIds {
+		feedListId = append(feedListId, uint16(feedId))
+	}
+
+	return uc.longTermStorageRepository.GetStatistics(start, end, feedListId)
+}
+
 func (uc *UseCase) getFeeds() map[string][]int {
 	feedsGroupByFormats := make(map[string][]int)
 
@@ -118,12 +131,12 @@ func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statis
 	for _, stat := range statisticsStatsProvider {
 		detailStats := statistics.DetailedFeedStatistic{
 			StatDate:    stat.Date,
-			FeedId:      stat.FeedId,
+			FeedId:      uint16(stat.FeedId),
 			BillingType: billingType,
 			Country:     stat.Country,
-			Clicks:      stat.Clicks,
-			Impressions: stat.Impressions,
-			Cost:        stat.Cost,
+			Clicks:      uint64(stat.Clicks),
+			Impressions: uint64(stat.Impressions),
+			Cost:        uint64(stat.Cost),
 			Sign:        int8(1),
 		}
 		*stats = append(*stats, detailStats)

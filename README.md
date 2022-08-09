@@ -21,3 +21,8 @@ docker-compose run discrepancy-service migrate -database "clickhouse://clickhous
 ```
  docker-compose run --rm --service-ports --use-aliases discrepancy-service go run cmd/scheduller/scheduller.go 
 ```
+
+## Запуск server
+```
+ docker-compose run --rm  --use-aliases -p 8080:8080 discrepancy-service go run cmd/server/server.go 
+```
