@@ -3,11 +3,13 @@ package statistics
 import (
 	"context"
 	"fmt"
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
 	"github.com/rfomin84/discrep-service/pkg/store/clickhouse_client"
 	"github.com/spf13/viper"
 	"log"
+	"time"
 )
 
 type LongTermStorage struct {
@@ -62,4 +64,25 @@ func (repo *LongTermStorage) SaveStatistics(stats []statistics.DetailedFeedStati
 	if err := batch.Send(); err != nil {
 		log.Println(err.Error())
 	}
+}
+
+func (repo *LongTermStorage) GetStatistics(startDate, endDate time.Time, feedIds []uint16) []statistics.DetailedFeedStatistic {
+
+	stats := make([]statistics.DetailedFeedStatistic, 0)
+
+	rows := "SELECT StatDate, FeedId, BillingType, Country, SUM(Clicks) as Clicks, SUM(Impressions) as Impressions, SUM(Cost) as Cost " +
+		"FROM detailed_feed_statistics " +
+		"WHERE StatDate >= toDateTime(@startDate) AND StatDate <= toDateTime(@endDate) AND FeedId IN (@feedIds) " +
+		"GROUP BY StatDate, FeedId, BillingType, Country ORDER BY StatDate"
+
+	if err := repo.conn.Select(context.Background(), &stats, rows,
+		clickhouse.Named("startDate", startDate),
+		clickhouse.Named("endDate", endDate),
+		clickhouse.Named("feedIds", feedIds),
+	); err != nil {
+		log.Println(err.Error())
+		return stats
+	}
+
+	return stats
 }

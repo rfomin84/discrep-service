@@ -6,8 +6,9 @@ import (
 	"github.com/rfomin84/discrep-service/config"
 	"github.com/rfomin84/discrep-service/internal/services/feeds/repositories/redis"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
-	rtb_statistics2 "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/repository/clickhouse"
-	rtb_statistics "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/useCase"
+	statistics2 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/long_term_storage/clickhouse"
+	statisitics "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage/redis"
+	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/useCase"
 	"log"
 	"time"
 )
@@ -18,17 +19,17 @@ func main() {
 	feedsUseCase := feeds.New(cfg, repo)
 
 	// gather statistics
-	//tempStorageRepo := statisitics.NewTemporaryStorage(cfg)
-	//longTermStorageRepo := statistics2.NewLongTermStorage(cfg)
+	tempStorageRepo := statisitics.NewTemporaryStorage(cfg)
+	longTermStorageRepo := statistics2.NewLongTermStorage(cfg)
 	//fmt.Println(longTermStorageRepo)
-	//useCaseStatistics := statistics.NewUseCaseStatistics(cfg, feedsUseCase, tempStorageRepo, longTermStorageRepo)
+	useCaseStatistics := statistics.NewUseCaseStatistics(cfg, feedsUseCase, tempStorageRepo, longTermStorageRepo)
 	//useCaseStatistics.GatherStatistics()
-	//useCaseStatistics.FinalizeGatherStatistics()
+	useCaseStatistics.FinalizeGatherStatistics()
 
 	// gather rtb statistics
-	rtbStatisticsStorage := rtb_statistics2.NewRtbStatisticsStorage(cfg)
-	useCaseRtbStatistics := rtb_statistics.NewUseCaseRtbApiStatistics(cfg, feedsUseCase, rtbStatisticsStorage)
-	useCaseRtbStatistics.GatherRtbStatistics()
+	//rtbStatisticsStorage := rtb_statistics2.NewRtbStatisticsStorage(cfg)
+	//useCaseRtbStatistics := rtb_statistics.NewUseCaseRtbApiStatistics(cfg, feedsUseCase, rtbStatisticsStorage)
+	//useCaseRtbStatistics.GatherRtbStatistics()
 
 	//runCronJobs()
 }

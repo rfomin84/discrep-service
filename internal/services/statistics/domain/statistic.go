@@ -7,12 +7,12 @@ import (
 
 type DetailedFeedStatistic struct {
 	StatDate    time.Time `json:"date"`
-	FeedId      int       `json:"feed_id"`
+	FeedId      uint16    `json:"feed_id"`
 	BillingType string    `json:"-"`
 	Country     string    `json:"country"`
-	Clicks      int       `json:"clicks"`
-	Impressions int       `json:"impressions"`
-	Cost        float64   `json:"cost"`
+	Clicks      uint64    `json:"clicks"`
+	Impressions uint64    `json:"impressions"`
+	Cost        uint64    `json:"cost"`
 	Sign        int8      `json:"-"`
 }
 
