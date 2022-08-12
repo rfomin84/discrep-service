@@ -2,12 +2,11 @@ package rtb_statistics
 
 import (
 	"context"
-	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	rtb_statistics "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/domain"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/rfomin84/discrep-service/pkg/store/clickhouse_client"
 	"github.com/spf13/viper"
-	"log"
 )
 
 type RtbStatisticsStorage struct {
@@ -25,7 +24,7 @@ func NewRtbStatisticsStorage(cfg *viper.Viper) *RtbStatisticsStorage {
 	)
 
 	if err != nil {
-		log.Println("error connect", err.Error())
+		logger.Error("error connect" + err.Error())
 	}
 
 	return &RtbStatisticsStorage{
@@ -39,11 +38,10 @@ func (repo *RtbStatisticsStorage) SaveRtbStatistics(stats []rtb_statistics.RtbSt
 		"INSERT INTO rtb_statistics (StatDate, FeedId, Country, Clicks, Impressions, Cost, Sign)",
 	)
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 	}
 
 	for _, item := range stats {
-		fmt.Println(item)
 		if err := batch.Append(
 			item.StatDate,
 			item.FeedId,
@@ -53,11 +51,11 @@ func (repo *RtbStatisticsStorage) SaveRtbStatistics(stats []rtb_statistics.RtbSt
 			item.Cost,
 			item.Sign,
 		); err != nil {
-			log.Println(err.Error())
+			logger.Error(err.Error())
 		}
 	}
 
 	if err := batch.Send(); err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 	}
 }

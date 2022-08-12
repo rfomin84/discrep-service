@@ -2,13 +2,12 @@ package feeds
 
 import (
 	"context"
-	"fmt"
 	"github.com/rfomin84/discrep-service/clients"
 	feeds2 "github.com/rfomin84/discrep-service/internal/services/feeds/domain"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/repositories"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/spf13/viper"
 	"io"
-	"log"
 )
 
 type UseCase struct {
@@ -28,18 +27,18 @@ func (uc *UseCase) SaveFeeds() {
 	tc3Client := clients.New(uc.cfg)
 	feedsData, err := tc3Client.GetFeeds()
 	if err != nil {
-		log.Println("error get feeds from tc3", err.Error())
+		logger.Error("error get feeds from tc3 : " + err.Error())
 		return
 	}
 	defer feedsData.Body.Close()
 	bytes, err := io.ReadAll(feedsData.Body)
 	if err != nil {
-		log.Println("error", err.Error())
+		logger.Error("Error : " + err.Error())
 	}
 
 	// сохранить в хранилище данные
 	if err = uc.repository.Save(context.Background(), "feeds", bytes); err != nil {
-		log.Println("error save feeds to storage", err.Error())
+		logger.Error("error save feeds to storage" + err.Error())
 	}
 }
 
@@ -47,7 +46,7 @@ func (uc *UseCase) GetFeeds() []feeds2.Feed {
 	// получить дынные из хранилища
 	feedsAll, err := uc.repository.Get(context.Background(), "feeds")
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Warning(err.Error())
 		return nil
 	}
 	return feedsAll
