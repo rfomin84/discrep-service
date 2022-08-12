@@ -9,11 +9,12 @@ import (
 	statistics2 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/long_term_storage/clickhouse"
 	statisitics "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage/redis"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/useCase"
-	"log"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"time"
 )
 
 func main() {
+	logger.Info("Starting scheduler")
 	cfg := config.GetConfig()
 	repo := redis.New(cfg)
 	feedsUseCase := feeds.New(cfg, repo)
@@ -39,7 +40,7 @@ func runCronJobs() {
 
 	// get and save feeds
 	s.Every(5).Minutes().SingletonMode().Do(func() {
-		log.Println("save feeds starting")
+		logger.Info("save feeds starting")
 		cfg := config.GetConfig()
 		repo := redis.New(cfg)
 		useCaseFeeds := feeds.New(cfg, repo)

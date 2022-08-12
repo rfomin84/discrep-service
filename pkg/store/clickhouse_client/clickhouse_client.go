@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"time"
 )
 
@@ -31,12 +32,11 @@ func NewClickhouseClient(ctx context.Context, host, port, username, password, da
 
 	if err := conn.Ping(ctx); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
-			fmt.Printf("Catch exception [%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
+			logger.Error(fmt.Sprintf("Catch exception [%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace))
 		}
 		return nil, err
 	}
-
-	fmt.Println("connect", conn)
+	logger.Debug(fmt.Sprintf("connect %v", conn))
 
 	return conn, nil
 }

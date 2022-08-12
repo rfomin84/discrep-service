@@ -10,9 +10,9 @@ import (
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
 	statistics3 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/long_term_storage"
 	statistics2 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/temporary_storage"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/spf13/viper"
 	"io"
-	"log"
 	"sync"
 	"time"
 )
@@ -44,7 +44,7 @@ func (uc *UseCase) GatherStatistics() {
 
 	err := uc.temporaryStorageRepository.SaveStatistics(context.Background(), detailStatistics)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
 	}
 }
 
@@ -57,7 +57,6 @@ func (uc *UseCase) FinalizeGatherStatistics() {
 	detailStatistics := uc.getStatsFromStatsProvider(feedsGroupByFormats, startDate, endDate)
 
 	// save clickhouse
-	fmt.Println(len(detailStatistics))
 	uc.longTermStorageRepository.SaveStatistics(detailStatistics)
 }
 
@@ -78,8 +77,7 @@ func (uc *UseCase) getFeeds() map[string][]int {
 	feedsGroupByFormats := make(map[string][]int)
 
 	getFeeds := uc.feedsUseCase.GetFeeds()
-
-	fmt.Println(len(getFeeds))
+	logger.Debug(fmt.Sprintf("Count get feeds: %d", len(getFeeds)))
 
 	for _, feed := range getFeeds {
 		/** TODO: не учитывается формирование формата dsp + billing_type */
@@ -113,11 +111,11 @@ func (uc *UseCase) getStatsFromStatsProvider(feedsGroupByFormats map[string][]in
 
 func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statistics.DetailedFeedStatistic, startDate, endDate time.Time, billingType, timeframe string, feedIds []int) {
 	defer wg.Done()
-	fmt.Println("billingType : " + billingType)
+	logger.Info(fmt.Sprintf("billingType : %s", billingType))
 	statsProviderClient := clients.NewStatsProviederClient(uc.cfg)
 	response, err := statsProviderClient.GetStatistics(startDate, endDate, billingType, timeframe, feedIds)
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Error(err.Error())
 		return
 	}
 	statisticsStatsProvider := make([]statistics.StatisticStatsProvider, 0)
@@ -125,7 +123,7 @@ func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statis
 	err = json.Unmarshal(responseBody, &statisticsStatsProvider)
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 	}
 
 	for _, stat := range statisticsStatsProvider {

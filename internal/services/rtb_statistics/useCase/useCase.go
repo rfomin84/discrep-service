@@ -8,9 +8,9 @@ import (
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
 	rtb_statistics "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/domain"
 	rtb_statistics2 "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/repository"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/spf13/viper"
 	"io"
-	"log"
 	"strconv"
 )
 
@@ -41,24 +41,24 @@ func (u *UseCase) GatherRtbStatistics() {
 		if feed.Id > 500 {
 			break
 		}
-		fmt.Println("rtb_api_provider_id", feed.RtbApiProviderId)
+		logger.Info(fmt.Sprintf("rtb_api_provider_id : %d", feed.RtbApiProviderId)
 		response, err := u.RtbApiProviderClient.GetStatistics(from, to, strconv.Itoa(feed.RtbApiProviderId))
 		if err != nil {
-			log.Println(err.Error())
+			logger.Warning("Error get external statistics: " + err.Error())
 			continue
 		}
 		if response.StatusCode != 200 {
-			log.Println(fmt.Sprintf("Not get rtb statistics for feed %d", feed.Id))
+			logger.Warning(fmt.Sprintf("Not get rtb statistics for feed %d", feed.Id))
 			continue
 		}
 
 		// save statistics
 		responseBody, _ := io.ReadAll(response.Body)
 		var extRtbStat rtb_statistics.ExternalRtbStatistics
-		fmt.Println(string(responseBody))
+
 		err = json.Unmarshal(responseBody, &extRtbStat)
 		if err != nil {
-			log.Println(err.Error())
+			logger.Error(err.Error())
 		}
 		rtbStats = append(rtbStats, rtb_statistics.RtbStatistics{
 			StatDate:    extRtbStat.Date,
@@ -70,7 +70,6 @@ func (u *UseCase) GatherRtbStatistics() {
 			Sign:        int8(1),
 		})
 	}
-	fmt.Println(rtbStats)
 
 	u.storage.SaveRtbStatistics(rtbStats)
 }

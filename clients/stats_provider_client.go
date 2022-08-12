@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/spf13/viper"
 	"net/http"
 	"time"
@@ -90,7 +91,7 @@ func (spc *StatsProviderClient) GetStatistics(startDate, endDate time.Time, bill
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, spc.Host+"/api/v1/billing-stats-by-feeds", bytes.NewBuffer(dataByte))
 
 	if err != nil {
-		fmt.Println(err.Error())
+		logger.Warning(err.Error())
 		return nil, err
 	}
 	request.Header.Add("Accept", "application/json")

@@ -2,13 +2,12 @@ package statistics
 
 import (
 	"context"
-	"fmt"
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
+	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/rfomin84/discrep-service/pkg/store/clickhouse_client"
 	"github.com/spf13/viper"
-	"log"
 	"time"
 )
 
@@ -27,7 +26,7 @@ func NewLongTermStorage(cfg *viper.Viper) *LongTermStorage {
 	)
 
 	if err != nil {
-		log.Println("error connect", err.Error())
+		logger.Error("error connect : " + err.Error())
 	}
 
 	return &LongTermStorage{
@@ -42,11 +41,10 @@ func (repo *LongTermStorage) SaveStatistics(stats []statistics.DetailedFeedStati
 		"INSERT INTO detailed_feed_statistics (StatDate, FeedId, BillingType, Country, Clicks, Impressions, Cost, Sign)",
 	)
 	if err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 	}
 
 	for _, item := range stats {
-		fmt.Println(item)
 		if err := batch.Append(
 			item.StatDate,
 			uint16(item.FeedId),
@@ -57,12 +55,12 @@ func (repo *LongTermStorage) SaveStatistics(stats []statistics.DetailedFeedStati
 			uint64(item.Cost),
 			item.Sign,
 		); err != nil {
-			log.Println(err.Error())
+			logger.Error(err.Error())
 		}
 	}
 
 	if err := batch.Send(); err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 	}
 }
 
@@ -80,7 +78,7 @@ func (repo *LongTermStorage) GetStatistics(startDate, endDate time.Time, feedIds
 		clickhouse.Named("endDate", endDate),
 		clickhouse.Named("feedIds", feedIds),
 	); err != nil {
-		log.Println(err.Error())
+		logger.Error(err.Error())
 		return stats
 	}
 
