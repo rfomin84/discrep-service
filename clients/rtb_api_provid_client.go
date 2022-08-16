@@ -21,6 +21,7 @@ func NewRtbApiProvidClient(cfg viper.Viper) *RtbApiProvidClient {
 	transport.MaxIdleConns = 20
 
 	httpClient.Transport = transport
+	//httpClient.Timeout = 5 * time.Second
 
 	return &RtbApiProvidClient{
 		Client:   httpClient,

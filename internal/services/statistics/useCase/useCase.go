@@ -35,8 +35,8 @@ func NewUseCaseStatistics(cfg *viper.Viper, feedsUseCase *feeds.UseCase, tempora
 
 func (uc *UseCase) GatherStatistics() {
 
-	startDate := carbon.Yesterday().StartOfDay().Carbon2Time()
-	endDate := carbon.Now().EndOfDay().Carbon2Time()
+	startDate := carbon.Now().StartOfDay().Carbon2Time()
+	endDate := carbon.Now().EndOfHour().Carbon2Time()
 
 	feedsGroupByFormats := uc.getFeeds()
 
@@ -46,6 +46,9 @@ func (uc *UseCase) GatherStatistics() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
+
+	// сохраняем косты в balance history
+
 }
 
 func (uc *UseCase) FinalizeGatherStatistics() {

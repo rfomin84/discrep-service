@@ -7,6 +7,7 @@ import (
 
 type ExternalRtbStatistics struct {
 	Date        time.Time `json:"date"`
+	FeedID      int       `json:"-"`
 	Comment     string    `json:"comment"`
 	Cost        uint64    `json:"cost"`
 	Impressions uint64    `json:"impressions"`
