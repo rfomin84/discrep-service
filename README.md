@@ -28,7 +28,7 @@ docker-compose run discrepancy-service migrate -database "clickhouse://clickhous
 
 ## Запуск server
 ```
- docker-compose run --rm  --use-aliases -p 8080:8080 discrepancy-service go run cmd/server/server.go 
+ docker-compose run --rm  --use-aliases -p 8040:8040 discrepancy-service go run cmd/server/server.go 
 ```
 
 ## Запуск console command
