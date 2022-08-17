@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/rfomin84/discrep-service/clients"
+	useCase "github.com/rfomin84/discrep-service/internal/services/balance_history/useCase"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
 	statistics "github.com/rfomin84/discrep-service/internal/services/statistics/domain"
 	statistics3 "github.com/rfomin84/discrep-service/internal/services/statistics/repository/long_term_storage"
@@ -47,8 +48,15 @@ func (uc *UseCase) GatherStatistics() {
 		logger.Error(err.Error())
 	}
 
-	// сохраняем косты в balance history
+	useCaseBalanceHistory := useCase.NewUseCaseBalanceHistory(uc.cfg)
 
+	// удаляем не финализированные данные с balance_history
+	useCaseBalanceHistory.DeleteNotApprovedStatistics(startDate, endDate)
+
+	// сохраняем косты в balance history
+	logger.Info(fmt.Sprintf("Count record detail stats : %d", len(detailStatistics)))
+
+	useCaseBalanceHistory.SaveTodayStatistics(detailStatistics)
 }
 
 func (uc *UseCase) FinalizeGatherStatistics() {
