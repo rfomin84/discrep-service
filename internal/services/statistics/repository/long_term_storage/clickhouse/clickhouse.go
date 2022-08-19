@@ -50,9 +50,9 @@ func (repo *LongTermStorage) SaveStatistics(stats []statistics.DetailedFeedStati
 			uint16(item.FeedId),
 			item.BillingType,
 			item.Country,
-			uint64(item.Clicks),
-			uint64(item.Impressions),
-			uint64(item.Cost),
+			item.Clicks,
+			item.Impressions,
+			item.Cost*10000,
 			item.Sign,
 		); err != nil {
 			logger.Error(err.Error())
