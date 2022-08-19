@@ -18,6 +18,7 @@ func main() {
 	fmt.Println("console")
 	var rootCmd = &cobra.Command{Use: "app"}
 	rootCmd.AddCommand(gatherRtbStatistics())
+	rootCmd.AddCommand(gatherStatistics())
 	rootCmd.Execute()
 }
 

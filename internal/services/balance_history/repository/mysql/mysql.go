@@ -10,6 +10,7 @@ import (
 	"github.com/rfomin84/discrep-service/pkg/store/mysql_client"
 	"github.com/spf13/viper"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -62,11 +63,9 @@ func (storage *BalanceHistoryStorage) Save(data []balance_history.BalanceHistory
 
 	for _, row := range data {
 		// шаг 3 — указываем, что каждое видео будет добавлено в транзакцию
-		if _, err := stmt.ExecContext(ctx, row.FeedId, row.Date, row.Cost, 0); err != nil {
+		if _, err := stmt.ExecContext(ctx, row.FeedId, row.Date, row.Cost, row.Approved); err != nil {
 			logger.Error("ERROR 2 : " + err.Error())
-			//log.Fatal(res)
 		}
-
 	}
 	// шаг 4 — сохраняем изменения
 	if err = tx.Commit(); err != nil {
@@ -81,6 +80,22 @@ func (storage *BalanceHistoryStorage) DeleteNotApproveStatistics(start, end time
 
 	approved := 0
 	_, err := storage.conn.ExecContext(ctx, "DELETE FROM balance_history WHERE date BETWEEN ? AND ? and approved = ?;",
+		start,
+		end,
+		approved,
+	)
+
+	if err != nil {
+		logger.Error(err.Error())
+		log.Fatal(err.Error())
+	}
+}
+
+func (storage *BalanceHistoryStorage) DeleteStatisticsByFeedIds(feedIds []int, start, end time.Time, approved bool) {
+	ctx := context.Background()
+
+	_, err := storage.conn.ExecContext(ctx, "DELETE FROM balance_history WHERE feed_id IN (?) AND date BETWEEN ? AND ? AND approved = ?;",
+		strings.Trim(strings.Join(strings.Fields(fmt.Sprint(feedIds)), ","), "[]"),
 		start,
 		end,
 		approved,

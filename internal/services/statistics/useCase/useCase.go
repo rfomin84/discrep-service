@@ -69,6 +69,12 @@ func (uc *UseCase) FinalizeGatherStatistics() {
 
 	// save clickhouse
 	uc.longTermStorageRepository.SaveStatistics(detailStatistics)
+
+	// save balance-history
+	allFeeds := uc.feedsUseCase.GetFeeds()
+
+	useCaseBalanceHistory := useCase.NewUseCaseBalanceHistory(uc.cfg)
+	useCaseBalanceHistory.ApprovedOurStats(allFeeds, detailStatistics, startDate, endDate)
 }
 
 func (uc *UseCase) GetStatistics(startDate, endDate string, feedIds []int) []statistics.DetailedFeedStatistic {
@@ -145,7 +151,7 @@ func (uc *UseCase) getStatisticByBillingType(wg *sync.WaitGroup, stats *[]statis
 			Country:     stat.Country,
 			Clicks:      uint64(stat.Clicks),
 			Impressions: uint64(stat.Impressions),
-			Cost:        uint64(stat.Cost),
+			Cost:        uint64(stat.Cost * 10000),
 			Sign:        int8(1),
 		}
 		*stats = append(*stats, detailStats)
