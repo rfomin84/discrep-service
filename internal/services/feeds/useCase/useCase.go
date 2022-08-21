@@ -7,6 +7,7 @@ import (
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/repositories"
 	"github.com/rfomin84/discrep-service/pkg/logger"
 	"github.com/spf13/viper"
+	"github.com/thoas/go-funk"
 	"io"
 )
 
@@ -50,4 +51,22 @@ func (uc *UseCase) GetFeeds() []feeds2.Feed {
 		return nil
 	}
 	return feedsAll
+}
+
+func (uc *UseCase) GetFeedsWorkOurStatistics() []feeds2.Feed {
+	allFeeds := uc.GetFeeds()
+	feedsOurStats := funk.Filter(allFeeds, func(feed feeds2.Feed) bool {
+		return feed.ExternalStatistics == false
+	})
+
+	return feedsOurStats.([]feeds2.Feed)
+}
+
+func (uc *UseCase) GetFeedsWorkExternalStatistics() []feeds2.Feed {
+	allFeeds := uc.GetFeeds()
+	feedsOurStats := funk.Filter(allFeeds, func(feed feeds2.Feed) bool {
+		return feed.ExternalStatistics == true
+	})
+
+	return feedsOurStats.([]feeds2.Feed)
 }
