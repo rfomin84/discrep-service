@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-module/carbon/v2"
 	"github.com/rfomin84/discrep-service/clients"
+	useCase "github.com/rfomin84/discrep-service/internal/services/balance_history/useCase"
 	feeds "github.com/rfomin84/discrep-service/internal/services/feeds/useCase"
 	rtb_statistics "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/domain"
 	rtb_statistics2 "github.com/rfomin84/discrep-service/internal/services/rtb_statistics/repository"
@@ -31,9 +32,9 @@ func NewUseCaseRtbApiStatistics(cfg *viper.Viper, feedUseCase *feeds.UseCase, st
 
 func (u *UseCase) GatherRtbStatistics() {
 	from := carbon.Yesterday().Carbon2Time()
-	//to := carbon.Yesterday().Carbon2Time()
+
 	rtbStats := make([]rtb_statistics.RtbStatistics, 0)
-	feedList := u.feedsUseCase.GetFeeds()
+	feedList := u.feedsUseCase.GetFeedsWorkExternalStatistics()
 	fmt.Println(feedList)
 	countWorkers := 20
 	taskCh := make(chan Task, countWorkers)
@@ -69,39 +70,6 @@ func (u *UseCase) GatherRtbStatistics() {
 
 	u.storage.SaveRtbStatistics(rtbStats)
 
-	//for _, feed := range feedList {
-	//	if feed.Id > 500 {
-	//		break
-	//	}
-	//	logger.Info(fmt.Sprintf("rtb_api_provider_id : %d", feed.RtbApiProviderId))
-	//	response, err := u.RtbApiProviderClient.GetStatistics(from, to, strconv.Itoa(feed.RtbApiProviderId))
-	//	if err != nil {
-	//		logger.Warning("Error get external statistics: " + err.Error())
-	//		continue
-	//	}
-	//	if response.StatusCode != 200 {
-	//		logger.Warning(fmt.Sprintf("Not get rtb statistics for feed %d", feed.Id))
-	//		continue
-	//	}
-	//
-	//	// save statistics
-	//	responseBody, _ := io.ReadAll(response.Body)
-	//	var extRtbStat rtb_statistics.ExternalRtbStatistics
-	//
-	//	err = json.Unmarshal(responseBody, &extRtbStat)
-	//	if err != nil {
-	//		logger.Error(err.Error())
-	//	}
-	//	rtbStats = append(rtbStats, rtb_statistics.RtbStatistics{
-	//		StatDate:    extRtbStat.Date,
-	//		FeedId:      uint16(feed.Id),
-	//		Country:     "",
-	//		Clicks:      extRtbStat.Clicks,
-	//		Impressions: extRtbStat.Impressions,
-	//		Cost:        extRtbStat.Cost,
-	//		Sign:        int8(1),
-	//	})
-	//}
-	//
-	//u.storage.SaveRtbStatistics(rtbStats)
+	useCaseBalanceHistory := useCase.NewUseCaseBalanceHistory(u.cfg)
+	useCaseBalanceHistory.ApprovedExternalStatistics(feedList, rtbStats, from)
 }
