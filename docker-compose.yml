@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  discrepancy-service:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8009:8080"
+    depends_on:
+      - clickhouse
+      - redis
+    volumes:
+      - ./:/src
+    networks:
+      - default
+      - tc-advertising3_default
+  clickhouse:
+    image: clickhouse/clickhouse-server:22.2.2
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./.clickhouse:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_DB: "homestead"
+      CLICKHOUSE_USER: "homestead"
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+      CLICKHOUSE_PASSWORD: "secret"
+  redis:
+    build:
+      context: deploy/redis
+      dockerfile: Dockerfile
+    command: redis-server --requirepass secret --appendonly yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - ~/storage/redis:/data
+  mysql:
+    image: "mysql:5"
+    ports:
+      - "33063:3306"
+    volumes:
+      - ./mysql:/etc/mysql/conf.d
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: supersecret
+networks:
+  default:
+  tc-advertising3_default:
+    external: true

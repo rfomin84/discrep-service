@@ -1,0 +1,37 @@
+{
+  "feeds": [
+    {
+      "id": 219,
+      "formats": [
+        "push"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
+    },
+    {
+      "id": 288,
+      "formats": [
+        "push"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
+    },
+    {
+      "id": 379,
+      "formats": [
+        "native"
+      ],
+      "user_id": 120,
+      "external_statistics": true,
+      "is_dsp": false,
+      "timezone_name": "Europe/Moscow",
+      "timezone_offset": "+03:00"
+    }
+  ]
+}
